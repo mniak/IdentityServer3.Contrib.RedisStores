@@ -1,0 +1,29 @@
+version: 1.0.{build}
+configuration: Release
+platform: Any CPU
+environment:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+nuget:
+  project_feed: true
+  disable_publish_on_pr: true
+before_build:
+- cmd: dotnet restore
+- ps: 
+build:
+  publish_nuget: true
+  publish_nuget_symbols: true
+  include_nuget_references: true
+  verbosity: minimal
+after_build:
+- cmd: dotnet pack src/IdentityServer3.Contrib.RedisStores -o artifacts
+artifacts:
+- path: artifacts/*.nupkg
+  name: nuget_packages
+deploy:
+- provider: NuGet
+  api_key:
+    secure: ZdKICz75mor9lkVFmXm4MKXFPD9as9oD9eTOvbHug5hLrwAZstwNUn9yeaL6Vp4x
+  skip_symbols: false
+  artifact: nuget_packages
+  on:
+    branch: master
