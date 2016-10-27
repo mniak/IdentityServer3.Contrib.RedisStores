@@ -77,7 +77,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Sda.Identity\Sda.Identity.csproj">
+    <ProjectReference Include="..\..\..\..\..\DevTeam\EL\Sda.Identity\Source\Server\Sda.Identity\Sda.Identity.csproj">
       <Project>{C49C22AF-CA5C-4A6E-9882-95D1144B4A4A}</Project>
       <Name>Sda.Identity</Name>
     </ProjectReference>

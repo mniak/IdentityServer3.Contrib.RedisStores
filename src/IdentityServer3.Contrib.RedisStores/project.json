@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0-*",
+  "dependencies": {
+    "IdentityModel": "2.0.0",
+    "IdentityServer3": "2.5.4",
+    "NETStandard.Library": "1.6.0",
+    "StackExchange.Redis": "1.1.608"
+  },
+  "frameworks": {
+    "net45": {}
+  },
+  "buildOptions": {
+    "xmlDoc": true
+  }
+}

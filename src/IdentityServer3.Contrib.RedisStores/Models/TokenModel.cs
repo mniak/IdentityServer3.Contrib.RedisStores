@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace IdentityServer3.Contrib.RedisStores.Models
 {
-    class TokenModel
+    internal class TokenModel
     {
         public TokenModel()
         {
