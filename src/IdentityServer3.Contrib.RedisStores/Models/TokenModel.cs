@@ -12,7 +12,7 @@ namespace IdentityServer3.Contrib.RedisStores.Models
     {
         public TokenModel()
         {
-            Claims = new Dictionary<string, string>();
+            Claims = new List<KeyValuePair<string, string>>();
         }
         public TokenModel(Token token) : this()
         {
@@ -22,7 +22,7 @@ namespace IdentityServer3.Contrib.RedisStores.Models
             this.Lifetime = token.Lifetime;
             this.Type = token.Type;
             this.Version = token.Version;
-            this.Claims = token.Claims.ToDictionary(x => x.Type, x => x.Value);
+            this.Claims.AddRange(token.Claims.Select(x => new KeyValuePair<string, string>(x.Type, x.Value)));
         }
         public Token GetToken()
         {
@@ -64,7 +64,7 @@ namespace IdentityServer3.Contrib.RedisStores.Models
         public int Version { get; set; }
 
         [JsonProperty("claims")]
-        public Dictionary<string, string> Claims { get; set; }
+        public List<KeyValuePair<string, string>> Claims { get; set; }
 
         [JsonIgnore]
         public IEnumerable<string> Scopes
@@ -81,9 +81,7 @@ namespace IdentityServer3.Contrib.RedisStores.Models
         {
             get
             {
-                return Claims.ContainsKey(Constants.ClaimTypes.Subject)
-                     ? Claims.SingleOrDefault(x => x.Key == Constants.ClaimTypes.Subject).Value
-                     : null;
+                return Claims.SingleOrDefault(x => x.Key == Constants.ClaimTypes.Subject).Value;
             }
         }
     }
