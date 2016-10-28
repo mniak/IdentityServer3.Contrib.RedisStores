@@ -3,7 +3,7 @@
   "testRunner": "xunit",
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
-    "IdentityServer3.Contrib.RedisStores": "1.0.0-*",
+    "IdentityServer3.Contrib.RedisStores": "1.0.1-*",
     "xunit": "2.1.0"
   },
 
