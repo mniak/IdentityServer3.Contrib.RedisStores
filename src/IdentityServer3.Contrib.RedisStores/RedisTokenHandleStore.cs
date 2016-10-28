@@ -27,22 +27,11 @@ namespace IdentityServer3.Contrib.RedisStores
         /// <summary>
         /// Creates a new RedisTokenHandleStore instance
         /// </summary>
-        /// <param name="redisConfiguration">The Redis configuration</param>
-        public RedisTokenHandleStore(string redisConfiguration, RedisTokenHandleStoreOptions options = default(RedisTokenHandleStoreOptions))
+        /// <param name="redis">The Redis database</param>
+        /// <param name="options">Optional options</param>
+        public RedisTokenHandleStore(IDatabase redis, RedisTokenHandleStoreOptions options = default(RedisTokenHandleStoreOptions))
         {
-            var connection = ConnectionMultiplexer.Connect(redisConfiguration);
-            this.redis = connection.GetDatabase();
-            this.redisHelper = new RedisHelper(redis, options);
-        }
-
-        /// <summary>
-        /// Creates a new RedisTokenHandleStore instance
-        /// </summary>
-        /// <param name="redisConfiguration">The Redis configuration</param>
-        public RedisTokenHandleStore(ConfigurationOptions redisConfiguration, RedisTokenHandleStoreOptions options = default(RedisTokenHandleStoreOptions))
-        {
-            var connection = ConnectionMultiplexer.Connect(redisConfiguration);
-            this.redis = connection.GetDatabase();
+            this.redis = redis;
             this.redisHelper = new RedisHelper(redis, options);
         }
 
