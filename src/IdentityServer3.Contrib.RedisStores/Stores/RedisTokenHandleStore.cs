@@ -28,8 +28,15 @@ namespace IdentityServer3.Contrib.RedisStores
         /// Creates a new RedisTokenHandleStore instance
         /// </summary>
         /// <param name="redis">The Redis database</param>
-        /// <param name="options">Optional options</param>
-        public RedisTokenHandleStore(IDatabase redis, RedisTokenHandleStoreOptions options = default(RedisTokenHandleStoreOptions))
+        public RedisTokenHandleStore(IDatabase redis) : this(redis, new RedisOptions())
+        {
+        }
+        /// <summary>
+        /// Creates a new RedisTokenHandleStore instance
+        /// </summary>
+        /// <param name="redis">The Redis database</param>
+        /// <param name="options">Options</param>
+        public RedisTokenHandleStore(IDatabase redis, RedisOptions options)
         {
             this.redis = redis;
             this.redisHelper = new RedisHelper(redis, options);
@@ -65,7 +72,6 @@ namespace IdentityServer3.Contrib.RedisStores
         /// <returns>The token</returns>
         public async Task<Token> GetAsync(string tokenKey)
         {
-            await Task.Delay(0);
             try
             {
                 var tokenModel = await redisHelper.RetrieveAsync<TokenModel>(TOKENS, tokenKey);
@@ -144,11 +150,16 @@ namespace IdentityServer3.Contrib.RedisStores
                 var accomplished = await redisHelper.StoreAsync(TOKENS, tokenKey, tokenModel, token.Lifetime);
                 if (!accomplished)
                     throw new IOException("The Redis server returned FALSE to the SET command.");
-                await Task.WhenAll(new[] {
-                   redis.SetAddAsync(redisHelper.GetIdsKey(TOKENS), tokenKey),
-                   redis.SetAddAsync(redisHelper.GetIndexKey(TOKENS, SUBJECT, token.SubjectId), tokenKey),
-                });
 
+                var idskey = redisHelper.GetIdsKey(TOKENS);
+                var taskSaveRecord = redis.SetAddAsync(idskey, tokenKey)
+                    .ContinueWith(async t => await redisHelper.ExtendLifetimeAsync(idskey, token.Lifetime, true));
+
+                var idxkey = redisHelper.GetIndexKey(TOKENS, SUBJECT, token.SubjectId);
+                var taskSaveIndex = redis.SetAddAsync(idxkey, tokenKey)
+                    .ContinueWith(async t => await redisHelper.ExtendLifetimeAsync(idxkey, token.Lifetime, true));
+
+                await Task.WhenAll(taskSaveRecord, taskSaveIndex);
             }
             catch (Exception ex)
             {

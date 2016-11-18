@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 namespace IdentityServer3.Contrib.RedisStores
 {
     /// <summary>
-    /// Creates a new RedisTokenHandleStoreOptions instance
+    /// Creates a new RedisOptions instance
     /// </summary>
-    public struct RedisTokenHandleStoreOptions
+    public class RedisOptions
     {
         /// <summary>
         /// The prefix for all the Redis keys used

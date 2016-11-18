@@ -8,24 +8,24 @@ namespace IdentityServer3.Contrib.RedisStores
     internal class RedisHelper
     {
         private readonly IDatabase redis;
-        private readonly RedisTokenHandleStoreOptions options;
+        private readonly RedisOptions options;
 
-        public RedisHelper(IDatabase redis, RedisTokenHandleStoreOptions options)
+        public RedisHelper(IDatabase redis, RedisOptions options)
         {
             this.redis = redis;
             this.options = options;
         }
         public string GetEntryKey(string collection, string id)
         {
-            return $"{options.KeyPrefix}{collection}:{id}";
+            return $"{options.KeyPrefix}{collection}[{id}]";
         }
         public string GetIdsKey(string collection)
         {
             return $"{options.KeyPrefix}{collection}_ids";
         }
-        public string GetIndexKey(string collection, string index, string indexValue)
+        public string GetIndexKey(string collection, string indexName, string indexValue)
         {
-            return $"{options.KeyPrefix}{collection}_idx[{index}]:{indexValue ?? "NULL"}";
+            return $"{options.KeyPrefix}{collection}({indexName}={indexValue ?? "null"}))";
         }
         public async Task<T> RetrieveAsync<T>(string collection, string id)
         {
@@ -49,10 +49,16 @@ namespace IdentityServer3.Contrib.RedisStores
         {
             await redis.KeyDeleteAsync(GetEntryKey(collection, id));
         }
-        private async Task DeleteFromIndexIdAsync(string collection, string id)
+        public async Task DeleteFromIndexIdAsync(string collection, string id)
         {
             var idsIndex = GetIdsKey(collection);
             await redis.SetRemoveAsync(idsIndex, id);
+        }
+        public async Task ExtendLifetimeAsync(string key, int lifetime, bool setExpirationIfEternal = false)
+        {
+            var ttl = await redis.KeyTimeToLiveAsync(key);
+            if (setExpirationIfEternal && !ttl.HasValue || ttl.HasValue && lifetime > ttl.Value.TotalSeconds)
+                await redis.KeyExpireAsync(key, DateTime.Now.AddSeconds(lifetime));
         }
     }
 }
