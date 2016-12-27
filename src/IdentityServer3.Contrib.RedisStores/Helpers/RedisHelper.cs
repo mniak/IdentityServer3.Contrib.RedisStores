@@ -54,11 +54,13 @@ namespace IdentityServer3.Contrib.RedisStores
             var idsIndex = GetIdsKey(collection);
             await redis.SetRemoveAsync(idsIndex, id);
         }
-        public async Task ExtendLifetimeAsync(string key, int lifetime, bool setExpirationIfEternal = false)
+        public async Task ExtendLifetimeAsync(string key, int? lifetime, bool setExpirationIfEternal = false)
         {
+            if (!lifetime.HasValue)
+                return;
             var ttl = await redis.KeyTimeToLiveAsync(key);
-            if (setExpirationIfEternal && !ttl.HasValue || ttl.HasValue && lifetime > ttl.Value.TotalSeconds)
-                await redis.KeyExpireAsync(key, DateTime.Now.AddSeconds(lifetime));
+            if (setExpirationIfEternal && !ttl.HasValue || ttl.HasValue && lifetime.Value > ttl.Value.TotalSeconds)
+                await redis.KeyExpireAsync(key, DateTime.Now.AddSeconds(lifetime.Value));
         }
     }
 }

@@ -5,25 +5,34 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System;
 
 namespace IdentityServer3.Contrib.RedisStores.Models
 {
-    internal class TokenModel
+    /// <summary>
+    /// 
+    /// </summary>
+    public class TokenModel : ITokenModel<Token>
     {
-        public TokenModel()
+        /// <summary>
+        /// 
+        /// </summary>
+        internal TokenModel()
         {
             Claims = new List<KeyValuePair<string, string>>();
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="token"></param>
         public TokenModel(Token token) : this()
         {
-            this.Audience = token.Audience;
-            this.Issuer = token.Issuer;
-            this.IssuedAt = token.CreationTime.ToEpochTime();
-            this.Lifetime = token.Lifetime;
-            this.Type = token.Type;
-            this.Version = token.Version;
-            this.Claims.AddRange(token.Claims.Select(x => new KeyValuePair<string, string>(x.Type, x.Value)));
+            this.ImportData(token);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public Token GetToken()
         {
             var result = new Token()
@@ -39,50 +48,61 @@ namespace IdentityServer3.Contrib.RedisStores.Models
             };
             return result;
         }
-        public ITokenMetadata GetTokenMetadata()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="token"></param>
+        public void ImportData(Token token)
         {
-            return new TokenMetadata()
-            {
-                ClientId = ClientId,
-                Scopes = Scopes,
-                SubjectId = SubjectId,
-            };
+            this.Audience = token.Audience;
+            this.Issuer = token.Issuer;
+            this.IssuedAt = token.CreationTime.ToEpochTime();
+            this.Lifetime = token.Lifetime;
+            this.Type = token.Type;
+            this.Version = token.Version;
+            this.Claims.AddRange(token.Claims.Select(x => new KeyValuePair<string, string>(x.Type, x.Value)));
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
         [JsonProperty("aud")]
         public string Audience { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         [JsonProperty("iss")]
         public string Issuer { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         [JsonProperty("iat")]
         public long IssuedAt { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         [JsonProperty("ttl")]
         public int Lifetime { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         [JsonProperty("type")]
         public string Type { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         [JsonProperty("cli")]
         public string ClientId { get; }
+        /// <summary>
+        /// 
+        /// </summary>
         [JsonProperty("ver")]
         public int Version { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [JsonProperty("claims")]
         public List<KeyValuePair<string, string>> Claims { get; set; }
-
-        [JsonIgnore]
-        public IEnumerable<string> Scopes
-        {
-            get
-            {
-                return Claims
-                    .Where(x => x.Key == Constants.ClaimTypes.Scope)
-                    .Select(x => x.Value);
-            }
-        }
-        [JsonIgnore]
-        public string SubjectId
-        {
-            get
-            {
-                return Claims.SingleOrDefault(x => x.Key == Constants.ClaimTypes.Subject).Value;
-            }
-        }
     }
 }
