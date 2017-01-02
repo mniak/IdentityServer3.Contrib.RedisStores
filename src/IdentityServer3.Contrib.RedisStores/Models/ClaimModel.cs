@@ -15,6 +15,13 @@ namespace IdentityServer3.Contrib.RedisStores.Models
     public class ClaimModel
     {
         /// <summary>
+        /// Parameterless constructor
+        /// </summary>
+        public ClaimModel()
+        {
+
+        }
+        /// <summary>
         /// Creates a new ClaimModel by the the type and value
         /// </summary>
         /// <param name="type">The type of the claim</param>
