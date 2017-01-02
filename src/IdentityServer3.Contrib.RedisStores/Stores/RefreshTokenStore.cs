@@ -8,12 +8,12 @@ using IdentityServer3.Contrib.RedisStores.Models;
 using StackExchange.Redis;
 using IdentityServer3.Contrib.RedisStores.Converters;
 
-namespace IdentityServer3.Contrib.RedisStores.Stores
+namespace IdentityServer3.Contrib.RedisStores
 {
     /// <summary>
     /// 
     /// </summary>
-    public class RefreshTokenStore : RedisTransientStore<RefreshToken, RefreshTokenModel>
+    public class RefreshTokenStore : RedisTransientStore<RefreshToken, RefreshTokenModel>, IRefreshTokenStore
     {
         /// <summary>
         /// 
