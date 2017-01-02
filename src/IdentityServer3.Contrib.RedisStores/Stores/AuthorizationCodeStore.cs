@@ -15,8 +15,9 @@ namespace IdentityServer3.Contrib.RedisStores
         /// Creates a new ReidsAuthorizationCodeStore
         /// </summary>
         /// <param name="redis">The redis database</param>
+        /// <param name="clientStore">The client store</param>
         /// <param name="options">The options</param>
-        public AuthorizationCodeStore(IDatabase redis, RedisOptions options) : base(redis, options, new AuthorizationCodeConverter())
+        public AuthorizationCodeStore(IDatabase redis, IClientStore clientStore, RedisOptions options) : base(redis, options, new AuthorizationCodeConverter(clientStore))
         {
 
         }
@@ -24,7 +25,8 @@ namespace IdentityServer3.Contrib.RedisStores
         /// Creates a new ReidsAuthorizationCodeStore
         /// </summary>
         /// <param name="redis">The redis database</param>
-        public AuthorizationCodeStore(IDatabase redis) : base(redis, new AuthorizationCodeConverter())
+        /// <param name="clientStore">The client store</param>
+        public AuthorizationCodeStore(IDatabase redis, IClientStore clientStore) : base(redis, new AuthorizationCodeConverter(clientStore))
         {
 
         }

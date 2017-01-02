@@ -13,7 +13,7 @@ namespace IdentityServer3.Contrib.RedisStores.Converters
     class TokenConverter : ITokenConverter<Token, TokenModel>
     {
 
-        public Token GetToken(TokenModel model)
+        public Task<Token> GetTokenAsync(TokenModel model)
         {
             var result = new Token()
             {
@@ -26,9 +26,9 @@ namespace IdentityServer3.Contrib.RedisStores.Converters
                 Claims = model.Claims.GetClaims(),
                 Version = model.Version,
             };
-            return result;
+            return Task.FromResult(result);
         }
-        public TokenModel GetModel(Token token)
+        public Task<TokenModel> GetModelAsync(Token token)
         {
             var result = new TokenModel()
             {
@@ -40,7 +40,7 @@ namespace IdentityServer3.Contrib.RedisStores.Converters
                 Version = token.Version
             };
             result.Claims.AddRange(token.Claims.GetClaimModels());
-            return result;
+            return Task.FromResult(result);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace IdentityServer3.Contrib.RedisStores.Converters
 {
     interface ITokenConverter<TToken, TModel>
     {
-        TToken GetToken(TModel model);
-        TModel GetModel(TToken token);
+        Task<TToken> GetTokenAsync(TModel model);
+        Task<TModel> GetModelAsync(TToken token);
     }
 }

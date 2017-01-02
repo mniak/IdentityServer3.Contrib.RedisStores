@@ -74,7 +74,7 @@ namespace IdentityServer3.Contrib.RedisStores
             {
                 var tokenModel = await redisHelper.RetrieveAsync<TModel>(CollectionName, tokenKey);
                 return tokenModel != null
-                    ? converter.GetToken(tokenModel)
+                    ? await converter.GetTokenAsync(tokenModel)
                     : null;
             }
             catch (Exception ex)
@@ -145,7 +145,7 @@ namespace IdentityServer3.Contrib.RedisStores
         {
             try
             {
-                var tokenModel = converter.GetModel(token);
+                var tokenModel = await converter.GetModelAsync(token);
 
                 var accomplished = await redisHelper.StoreAsync(CollectionName, tokenKey, tokenModel, GetTokenLifetime(token));
                 if (!accomplished)

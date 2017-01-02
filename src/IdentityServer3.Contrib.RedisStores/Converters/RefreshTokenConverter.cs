@@ -8,16 +8,16 @@ using System.Threading.Tasks;
 
 namespace IdentityServer3.Contrib.RedisStores.Converters
 {
-    internal class RefreshTokenConverter : ITokenConverter<RefreshToken, RefreshTokenModel>
-    {
-        public RefreshTokenModel GetModel(RefreshToken token)
-        {
-            throw new NotImplementedException();
-        }
+    //internal class RefreshTokenConverter : ITokenConverter<RefreshToken, RefreshTokenModel>
+    //{
+    //    public RefreshTokenModel GetModel(RefreshToken token)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        public RefreshToken GetToken(RefreshTokenModel model)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    //    public RefreshToken GetToken(RefreshTokenModel model)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
 }

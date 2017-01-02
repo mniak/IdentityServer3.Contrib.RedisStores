@@ -1,5 +1,6 @@
 ﻿using IdentityServer3.Contrib.RedisStores.Models;
 using IdentityServer3.Core.Models;
+using IdentityServer3.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,13 @@ namespace IdentityServer3.Contrib.RedisStores.Converters
 {
     class AuthorizationCodeConverter : ITokenConverter<AuthorizationCode, AuthorizationCodeModel>
     {
-        public AuthorizationCodeModel GetModel(AuthorizationCode authCode)
+        private readonly IClientStore clientStore;
+
+        public AuthorizationCodeConverter(IClientStore clientStore)
+        {
+            this.clientStore = clientStore;
+        }
+        public Task<AuthorizationCodeModel> GetModelAsync(AuthorizationCode authCode)
         {
             var result = new AuthorizationCodeModel()
             {
@@ -28,14 +35,15 @@ namespace IdentityServer3.Contrib.RedisStores.Converters
                 AuthenticationType = authCode.Subject.Identity.AuthenticationType,
                 WasConsentShown = authCode.WasConsentShown
             };
-            return result;
+            return Task.FromResult(result);
         }
 
-        public AuthorizationCode GetToken(AuthorizationCodeModel model)
+        public async Task<AuthorizationCode> GetTokenAsync(AuthorizationCodeModel model)
         {
+            var client = await clientStore.FindClientByIdAsync(model.ClientId);
             var result = new AuthorizationCode()
             {
-                Client = new Client() { ClientId = model.ClientId },
+                Client = client,
                 CodeChallenge = model.CodeChallenge,
                 CodeChallengeMethod = model.CodeChallengeMethod,
                 CreationTime = model.CreationTime,
