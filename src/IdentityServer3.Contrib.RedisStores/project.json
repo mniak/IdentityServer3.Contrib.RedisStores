@@ -1,5 +1,5 @@
 {
-  "version": "1.0.6-*",
+  "version": "1.0.7-*",
   "dependencies": {
     "IdentityModel": "2.0.0",
     "IdentityServer3": "2.5.4",    
