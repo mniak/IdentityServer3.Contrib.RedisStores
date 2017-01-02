@@ -7,43 +7,62 @@ using System.Threading.Tasks;
 
 namespace IdentityServer3.Contrib.RedisStores.Models
 {
+    /// <summary>
+    /// Represents a Refresh Token
+    /// </summary>
     public class RefreshTokenModel : ITokenModel<RefreshToken>
     {
         internal RefreshTokenModel()
         {
             Scopes = new List<string>();
+            Claims = new List<ClaimModel>();
         }
 
-        public RefreshToken GetToken()
-        {
-            var token = new RefreshToken();
-            token.AccessToken = token
-            return token;
-        }
-
-        public void ImportData(RefreshToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        [JsonProperty("")]
-        public Token AccessToken { get; set; }
-        [JsonProperty("")]
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonProperty("token")]
+        public TokenModel AccessToken { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonProperty("client_id")]
         public string ClientId { get; }
-        [JsonProperty("")]
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonProperty("created_at")]
         public DateTimeOffset CreationTime { get; set; }
-        [JsonProperty("")]
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonProperty("ttl")]
         public int LifeTime { get; set; }
-        [JsonProperty("")]
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonProperty("scopes")]
         public List<string> Scopes { get; set; }
 
-        [JsonProperty("")]
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonProperty("sub")]
         public string SubjectId { get; }
-        [JsonProperty("")]
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonProperty("ver")]
         public int Version { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [JsonProperty("claims")]
-        public Dictionary<string, string> Claims { get; set; }
+        public List<ClaimModel> Claims { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         [JsonProperty("auth_type")]
         public string AuthenticationType { get; set; }
     }

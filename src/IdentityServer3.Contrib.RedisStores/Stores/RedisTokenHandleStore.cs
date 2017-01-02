@@ -1,13 +1,8 @@
-﻿using IdentityServer3.Contrib.RedisStores.Models;
-using IdentityServer3.Core.Logging;
+﻿using IdentityServer3.Contrib.RedisStores.Converters;
+using IdentityServer3.Contrib.RedisStores.Models;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
 using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace IdentityServer3.Contrib.RedisStores
 {
@@ -21,7 +16,7 @@ namespace IdentityServer3.Contrib.RedisStores
         /// </summary>
         /// <param name="redis">The redis database</param>
         /// <param name="options">The options</param>
-        public RedisTokenHandleStore(IDatabase redis, RedisOptions options) : base(redis, options)
+        public RedisTokenHandleStore(IDatabase redis, RedisOptions options) : base(redis, options, new TokenConverter())
         {
 
         }
@@ -29,11 +24,11 @@ namespace IdentityServer3.Contrib.RedisStores
         /// Creates a new RedisTokenHandleStore
         /// </summary>
         /// <param name="redis">The redis database</param>
-        public RedisTokenHandleStore(IDatabase redis) : base(redis)
+        public RedisTokenHandleStore(IDatabase redis) : base(redis, new TokenConverter())
         {
 
         }
-        internal override string CollectionName { get { return "tokens"; } }
+        internal override string CollectionName => "tokens";
         internal override int GetTokenLifetime(Token token)
         {
             return token.Lifetime;

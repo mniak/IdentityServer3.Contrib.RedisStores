@@ -1,11 +1,8 @@
-﻿using IdentityServer3.Core.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using IdentityServer3.Core.Models;
-using StackExchange.Redis;
+﻿using IdentityServer3.Contrib.RedisStores.Converters;
 using IdentityServer3.Contrib.RedisStores.Models;
+using IdentityServer3.Core.Models;
+using IdentityServer3.Core.Services;
+using StackExchange.Redis;
 
 namespace IdentityServer3.Contrib.RedisStores
 {
@@ -19,7 +16,7 @@ namespace IdentityServer3.Contrib.RedisStores
         /// </summary>
         /// <param name="redis">The redis database</param>
         /// <param name="options">The options</param>
-        public RedisAuthorizationCodeStore(IDatabase redis, RedisOptions options) : base(redis, options)
+        public RedisAuthorizationCodeStore(IDatabase redis, RedisOptions options) : base(redis, options, new AuthorizationCodeConverter())
         {
 
         }
@@ -27,11 +24,11 @@ namespace IdentityServer3.Contrib.RedisStores
         /// Creates a new ReidsAuthorizationCodeStore
         /// </summary>
         /// <param name="redis">The redis database</param>
-        public RedisAuthorizationCodeStore(IDatabase redis) : base(redis)
+        public RedisAuthorizationCodeStore(IDatabase redis) : base(redis, new AuthorizationCodeConverter())
         {
 
         }
-        internal override string CollectionName { get { return "authcodes"; } }
+        internal override string CollectionName => "authCodes";
         internal override int GetTokenLifetime(AuthorizationCode token)
         {
             return token.Client.AuthorizationCodeLifetime;

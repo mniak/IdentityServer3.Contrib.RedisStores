@@ -8,6 +8,7 @@ using StackExchange.Redis;
 using IdentityServer3.Core.Logging;
 using System.IO;
 using IdentityServer3.Contrib.RedisStores.Models;
+using IdentityServer3.Contrib.RedisStores.Converters;
 
 namespace IdentityServer3.Contrib.RedisStores
 {
@@ -17,8 +18,8 @@ namespace IdentityServer3.Contrib.RedisStores
     /// <typeparam name="TToken">The type of the token</typeparam>
     /// <typeparam name="TModel">The type of the of the model of the token. Must implement ITokenModel&lt;TToken&gt;</typeparam>
     public abstract class RedisTransientStore<TToken, TModel> : ITransientDataRepository<TToken>
-        where TToken : class, ITokenMetadata, new()
-        where TModel : ITokenModel<TToken>, new()
+        where TToken : class, ITokenMetadata
+        where TModel : ITokenModel<TToken>
     {
         private const string SUBJECT = "sub";
 
@@ -26,14 +27,16 @@ namespace IdentityServer3.Contrib.RedisStores
 
         private readonly IDatabase redis;
         private readonly RedisHelper redisHelper;
+        private readonly ITokenConverter<TToken, TModel> converter;
 
-        internal RedisTransientStore(IDatabase redis) : this(redis, new RedisOptions())
+        internal RedisTransientStore(IDatabase redis, ITokenConverter<TToken, TModel> converter) : this(redis, new RedisOptions(), converter)
         {
         }
-        internal RedisTransientStore(IDatabase redis, RedisOptions options)
+        internal RedisTransientStore(IDatabase redis, RedisOptions options, ITokenConverter<TToken, TModel> converter)
         {
             this.redis = redis;
             this.redisHelper = new RedisHelper(redis, options);
+            this.converter = converter;
         }
 
 
@@ -70,7 +73,9 @@ namespace IdentityServer3.Contrib.RedisStores
             try
             {
                 var tokenModel = await redisHelper.RetrieveAsync<TModel>(CollectionName, tokenKey);
-                return tokenModel != null ? tokenModel.GetToken() : null;
+                return tokenModel != null
+                    ? converter.GetToken(tokenModel)
+                    : null;
             }
             catch (Exception ex)
             {
@@ -140,8 +145,7 @@ namespace IdentityServer3.Contrib.RedisStores
         {
             try
             {
-                var tokenModel = new TModel();
-                tokenModel.ImportData(token);
+                var tokenModel = converter.GetModel(token);
 
                 var accomplished = await redisHelper.StoreAsync(CollectionName, tokenKey, tokenModel, GetTokenLifetime(token));
                 if (!accomplished)

@@ -12,18 +12,7 @@ namespace IdentityServer3.Contrib.RedisStores.Models
     /// </summary>
     /// <typeparam name="T">The ITokenMetadata type</typeparam>
     public interface ITokenModel<T>
-        where T : class, ITokenMetadata, new()
+        where T : class, ITokenMetadata
     {
-        /// <summary>
-        /// Converts the model to an ITokenMetadata
-        /// </summary>
-        /// <returns>The token</returns>
-        T GetToken();
-
-        /// <summary>
-        /// Imports the data of the token to the model
-        /// </summary>
-        /// <param name="token">The token</param>
-        void ImportData(T token);
     }
 }
