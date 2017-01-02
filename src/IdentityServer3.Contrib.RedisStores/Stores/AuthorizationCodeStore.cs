@@ -9,14 +9,14 @@ namespace IdentityServer3.Contrib.RedisStores
     /// <summary>
     /// A redis implementation of IAuthorizationCodeStore
     /// </summary>
-    public sealed class RedisAuthorizationCodeStore : RedisTransientStore<AuthorizationCode, AuthorizationCodeModel>, IAuthorizationCodeStore
+    public sealed class AuthorizationCodeStore : RedisTransientStore<AuthorizationCode, AuthorizationCodeModel>, IAuthorizationCodeStore
     {
         /// <summary>
         /// Creates a new ReidsAuthorizationCodeStore
         /// </summary>
         /// <param name="redis">The redis database</param>
         /// <param name="options">The options</param>
-        public RedisAuthorizationCodeStore(IDatabase redis, RedisOptions options) : base(redis, options, new AuthorizationCodeConverter())
+        public AuthorizationCodeStore(IDatabase redis, RedisOptions options) : base(redis, options, new AuthorizationCodeConverter())
         {
 
         }
@@ -24,7 +24,7 @@ namespace IdentityServer3.Contrib.RedisStores
         /// Creates a new ReidsAuthorizationCodeStore
         /// </summary>
         /// <param name="redis">The redis database</param>
-        public RedisAuthorizationCodeStore(IDatabase redis) : base(redis, new AuthorizationCodeConverter())
+        public AuthorizationCodeStore(IDatabase redis) : base(redis, new AuthorizationCodeConverter())
         {
 
         }

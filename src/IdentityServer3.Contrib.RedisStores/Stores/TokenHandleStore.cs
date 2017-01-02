@@ -9,14 +9,14 @@ namespace IdentityServer3.Contrib.RedisStores
     /// <summary>
     /// IdentityServer3 ITokenHandleStore implementation using Redis
     /// </summary>
-    public sealed class RedisTokenHandleStore : RedisTransientStore<Token, TokenModel>, ITokenHandleStore
+    public sealed class TokenHandleStore : RedisTransientStore<Token, TokenModel>, ITokenHandleStore
     {
         /// <summary>
         /// Creates a new RedisTokenHandleStore
         /// </summary>
         /// <param name="redis">The redis database</param>
         /// <param name="options">The options</param>
-        public RedisTokenHandleStore(IDatabase redis, RedisOptions options) : base(redis, options, new TokenConverter())
+        public TokenHandleStore(IDatabase redis, RedisOptions options) : base(redis, options, new TokenConverter())
         {
 
         }
@@ -24,7 +24,7 @@ namespace IdentityServer3.Contrib.RedisStores
         /// Creates a new RedisTokenHandleStore
         /// </summary>
         /// <param name="redis">The redis database</param>
-        public RedisTokenHandleStore(IDatabase redis) : base(redis, new TokenConverter())
+        public TokenHandleStore(IDatabase redis) : base(redis, new TokenConverter())
         {
 
         }

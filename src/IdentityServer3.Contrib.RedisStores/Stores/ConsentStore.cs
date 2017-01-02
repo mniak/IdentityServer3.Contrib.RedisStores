@@ -11,7 +11,7 @@ namespace IdentityServer3.Contrib.RedisStores
     /// <summary>
     /// IdentityServer3 IConsentStore implementation using Redis
     /// </summary>
-    public class RedisConsentStore : IConsentStore
+    public class ConsentStore : IConsentStore
     {
         const string CONSENTS = "consents";
         const string SUBJECT = "sub";
@@ -23,7 +23,7 @@ namespace IdentityServer3.Contrib.RedisStores
         /// Creates a new RedisConsentStore
         /// </summary>
         /// <param name="redis">The redis database</param>
-        public RedisConsentStore(IDatabase redis) : this(redis, new RedisOptions())
+        public ConsentStore(IDatabase redis) : this(redis, new RedisOptions())
         {
 
         }
@@ -32,7 +32,7 @@ namespace IdentityServer3.Contrib.RedisStores
         /// </summary>
         /// <param name="redis">The redis database</param>
         /// <param name="options">Options</param>
-        public RedisConsentStore(IDatabase redis, RedisOptions options)
+        public ConsentStore(IDatabase redis, RedisOptions options)
         {
             this.redis = redis;
             this.redisHelper = new RedisHelper(redis, options);
