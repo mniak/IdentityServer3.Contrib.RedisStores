@@ -1,36 +1,29 @@
-﻿using IdentityServer3.Contrib.RedisStores.Converters;
-using IdentityServer3.Contrib.RedisStores.Models;
+﻿using IdentityServer3.Contrib.RedisStores.Serialization;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 
 namespace IdentityServer3.Contrib.RedisStores
 {
-    /// <summary>
-    /// A redis implementation of IAuthorizationCodeStore
-    /// </summary>
-    public sealed class AuthorizationCodeStore : RedisTransientStore<AuthorizationCode, AuthorizationCodeModel>, IAuthorizationCodeStore
+    public sealed class AuthorizationCodeStore : RedisTransientStore<AuthorizationCode>, IAuthorizationCodeStore
     {
-        /// <summary>
-        /// Creates a new ReidsAuthorizationCodeStore
-        /// </summary>
-        /// <param name="redis">The redis database</param>
-        /// <param name="clientStore">The client store</param>
-        /// <param name="options">The options</param>
-        public AuthorizationCodeStore(IDatabase redis, IClientStore clientStore, RedisOptions options) : base(redis, options, new AuthorizationCodeConverter(clientStore))
-        {
+        private readonly IScopeStore scopeStore;
 
-        }
-        /// <summary>
-        /// Creates a new ReidsAuthorizationCodeStore
-        /// </summary>
-        /// <param name="redis">The redis database</param>
-        /// <param name="clientStore">The client store</param>
-        public AuthorizationCodeStore(IDatabase redis, IClientStore clientStore) : base(redis, new AuthorizationCodeConverter(clientStore))
+        public AuthorizationCodeStore(IDatabase redis, RedisOptions options, IScopeStore scopeStore) : base(redis)
         {
-
+            this.scopeStore = scopeStore;
         }
-        internal override string CollectionName => "authCodes";
+        public AuthorizationCodeStore(IDatabase redis, IScopeStore scopeStore) : base(redis)
+        {
+            this.scopeStore = scopeStore;
+        }
+        protected override void CustomizeSerializerSettings(JsonSerializerSettings settings)
+        {
+            base.CustomizeSerializerSettings(settings);
+            settings.Converters.Add(new ScopeConverter(scopeStore));
+        }
+        internal override string CollectionName => "auth_codes";
         internal override int GetTokenLifetime(AuthorizationCode token)
         {
             return token.Client.AuthorizationCodeLifetime;
