@@ -46,12 +46,14 @@ namespace IdentityServer3.Contrib.RedisStores.Serialization
             var authCode = value as AuthorizationCode;
             var model = new AuthorizationCodeModel()
             {
+                ClientId = authCode.ClientId,
                 CodeChallenge = authCode.CodeChallenge,
                 CodeChallengeMethod = authCode.CodeChallengeMethod,
                 CreationTime = authCode.CreationTime,
                 IsOpenId = authCode.IsOpenId,
                 Nonce = authCode.Nonce,
                 RedirectUri = authCode.RedirectUri,
+                RequestedScopes = authCode.RequestedScopes,
                 SessionId = authCode.SessionId,
                 Subject = authCode.Subject,
                 WasConsentShown = authCode.WasConsentShown
