@@ -26,18 +26,12 @@ namespace IdentityServer3.Contrib.RedisStores.Models
         public string SessionId { get; set; }
         [JsonProperty("consent_shown")]
         public bool WasConsentShown { get; set; }
-
         [JsonProperty("subject")]
         public ClaimsPrincipal Subject { get; set; }
-        public string ClientId
-        {
-            get
-            {
-                var result = Subject?.Claims?.SingleOrDefault(x => x.Type == Constants.ClaimTypes.ClientId)?.Value;
-                return result;
-            }
-        }
-
+        [JsonProperty("requested_scopes")]
         public IEnumerable<Scope> RequestedScopes { get; set; }
+
+        [JsonProperty("client_id")]
+        public string ClientId { get; set; }
     }
 }
