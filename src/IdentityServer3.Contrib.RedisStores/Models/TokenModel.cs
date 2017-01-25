@@ -21,10 +21,10 @@ namespace IdentityServer3.Contrib.RedisStores.Models
         public string Type { get; set; }
         [JsonProperty("version")]
         public int Version { get; set; }
-
         [JsonProperty("claims")]
         public List<Claim> Claims { get; set; } = new List<Claim>();
 
+        [JsonIgnore]
         public Client Client
         {
             get
