@@ -24,8 +24,8 @@ namespace IdentityServer3.Contrib.RedisStores.Serialization
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var claim = value as Claim;
-            var model = new Models.ClaimModel(claim);
+            var claimsPrincipal = value as ClaimsPrincipal;
+            var model = new Models.ClaimsPrincipalModel(claimsPrincipal);
             serializer.Serialize(writer, model);
         }
     }
