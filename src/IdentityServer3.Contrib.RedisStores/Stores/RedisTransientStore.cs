@@ -20,23 +20,29 @@ namespace IdentityServer3.Contrib.RedisStores
         private readonly static ILog logger = LogProvider.GetCurrentClassLogger();
 
         private readonly IDatabase redis;
-        private readonly RedisHelper<TToken> redisHelper;
+        private readonly Lazy<RedisHelper<TToken>> lazyRedisHelper;
+        private RedisHelper<TToken> redisHelper { get { return lazyRedisHelper.Value; } }
 
         internal RedisTransientStore(IDatabase redis) : this(redis, new RedisOptions())
         {
         }
         internal RedisTransientStore(IDatabase redis, RedisOptions options)
         {
+            this.redis = redis;
+            this.lazyRedisHelper = new Lazy<RedisHelper<TToken>>(() => CreateRedisHelper(options));
+        }
+        private RedisHelper<TToken> CreateRedisHelper(RedisOptions options)
+        {
             var serializerSettings = new JsonSerializerSettings();
+            serializerSettings.Converters.Add(new TokenConverter());
+            serializerSettings.Converters.Add(new RefreshTokenConverter());
             serializerSettings.Converters.Add(new ClaimConverter());
             serializerSettings.Converters.Add(new ClaimsPrincipalConverter());
 
             CustomizeSerializerSettings(serializerSettings);
-
-            this.redis = redis;
-            this.redisHelper = new RedisHelper<TToken>(redis, options, serializerSettings);
+            var result = new RedisHelper<TToken>(this.redis, options, serializerSettings);
+            return result;
         }
-
         protected virtual void CustomizeSerializerSettings(JsonSerializerSettings settings) { }
         public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
