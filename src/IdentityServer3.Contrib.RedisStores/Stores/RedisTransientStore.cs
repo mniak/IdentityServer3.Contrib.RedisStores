@@ -1,56 +1,55 @@
-﻿using IdentityServer3.Core.Services;
+﻿using IdentityServer3.Contrib.RedisStores.Serialization;
+using IdentityServer3.Core.Logging;
+using IdentityServer3.Core.Models;
+using IdentityServer3.Core.Services;
+using Newtonsoft.Json;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using IdentityServer3.Core.Models;
-using StackExchange.Redis;
-using IdentityServer3.Core.Logging;
-using System.IO;
-using IdentityServer3.Contrib.RedisStores.Models;
-using IdentityServer3.Contrib.RedisStores.Converters;
 
 namespace IdentityServer3.Contrib.RedisStores
 {
-    /// <summary>
-    /// A base for the Redis Tokens Stores
-    /// </summary>
-    /// <typeparam name="TToken">The type of the token</typeparam>
-    /// <typeparam name="TModel">The type of the of the model of the token. Must implement ITokenModel&lt;TToken&gt;</typeparam>
-    public abstract class RedisTransientStore<TToken, TModel> : ITransientDataRepository<TToken>
+    public abstract class RedisTransientStore<TToken> : ITransientDataRepository<TToken>
         where TToken : class, ITokenMetadata
-        where TModel : ITokenModel<TToken>
     {
         private const string SUBJECT = "sub";
 
         private readonly static ILog logger = LogProvider.GetCurrentClassLogger();
 
         private readonly IDatabase redis;
-        private readonly RedisHelper redisHelper;
-        private readonly ITokenConverter<TToken, TModel> converter;
+        private readonly Lazy<RedisHelper<TToken>> lazyRedisHelper;
+        private RedisHelper<TToken> redisHelper { get { return lazyRedisHelper.Value; } }
 
-        internal RedisTransientStore(IDatabase redis, ITokenConverter<TToken, TModel> converter) : this(redis, new RedisOptions(), converter)
+        internal RedisTransientStore(IDatabase redis) : this(redis, new RedisOptions())
         {
         }
-        internal RedisTransientStore(IDatabase redis, RedisOptions options, ITokenConverter<TToken, TModel> converter)
+        internal RedisTransientStore(IDatabase redis, RedisOptions options)
         {
             this.redis = redis;
-            this.redisHelper = new RedisHelper(redis, options);
-            this.converter = converter;
+            this.lazyRedisHelper = new Lazy<RedisHelper<TToken>>(() => CreateRedisHelper(options));
         }
+        private RedisHelper<TToken> CreateRedisHelper(RedisOptions options)
+        {
+            var serializerSettings = new JsonSerializerSettings();
+            serializerSettings.Converters.Add(new TokenConverter());
+            serializerSettings.Converters.Add(new RefreshTokenConverter());
+            serializerSettings.Converters.Add(new ClaimConverter());
+            serializerSettings.Converters.Add(new ClaimsPrincipalConverter());
 
-
-        /// <summary>
-        /// Retrieves all the tokens in the store for a given subject identifier
-        /// </summary>
-        /// <param name="subject">The subject identifier</param>
-        /// <returns>A list of token metadata</returns>
+            CustomizeSerializerSettings(serializerSettings);
+            var result = new RedisHelper<TToken>(this.redis, options, serializerSettings);
+            return result;
+        }
+        protected virtual void CustomizeSerializerSettings(JsonSerializerSettings settings) { }
         public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
             try
             {
                 var members = redis.SetMembers(redisHelper.GetIndexKey(CollectionName, SUBJECT, subject));
-                var tasks = members.Select(x => redisHelper.RetrieveAsync<TModel>(CollectionName, x));
+                var tasks = members.Select(x => redisHelper.RetrieveAsync(CollectionName, x));
                 var tokenModels = await Task.WhenAll(tasks);
                 var result = tokenModels.Where(x => x != null)
                     .Cast<ITokenMetadata>();
@@ -63,19 +62,12 @@ namespace IdentityServer3.Contrib.RedisStores
             }
         }
 
-        /// <summary>
-        /// Retrieves a token by its key
-        /// </summary>
-        /// <param name="tokenKey">The token key</param>
-        /// <returns>The token</returns>
         public async Task<TToken> GetAsync(string tokenKey)
         {
             try
             {
-                var tokenModel = await redisHelper.RetrieveAsync<TModel>(CollectionName, tokenKey);
-                return tokenModel != null
-                    ? await converter.GetTokenAsync(tokenModel)
-                    : null;
+                var token = await redisHelper.RetrieveAsync(CollectionName, tokenKey);
+                return token;
             }
             catch (Exception ex)
             {
@@ -83,12 +75,6 @@ namespace IdentityServer3.Contrib.RedisStores
                 throw;
             }
         }
-
-        /// <summary>
-        /// Removes a token by its key
-        /// </summary>
-        /// <param name="tokenKey">The token key</param>
-        /// <returns></returns>
         public async Task RemoveAsync(string tokenKey)
         {
             try
@@ -101,13 +87,6 @@ namespace IdentityServer3.Contrib.RedisStores
                 throw;
             }
         }
-
-        /// <summary>
-        /// Revokes a token given a subject identifier and a client identifier
-        /// </summary>
-        /// <param name="subject">The subject identifier</param>
-        /// <param name="client">the client identifier</param>
-        /// <returns></returns>
         public async Task RevokeAsync(string subject, string client)
         {
             try
@@ -135,19 +114,11 @@ namespace IdentityServer3.Contrib.RedisStores
             }
         }
 
-        /// <summary>
-        /// Stores a token at the specified key
-        /// </summary>
-        /// <param name="tokenKey">The token key</param>
-        /// <param name="token">The token</param>
-        /// <returns></returns>
         public async Task StoreAsync(string tokenKey, TToken token)
         {
             try
             {
-                var tokenModel = await converter.GetModelAsync(token);
-
-                var accomplished = await redisHelper.StoreAsync(CollectionName, tokenKey, tokenModel, GetTokenLifetime(token));
+                var accomplished = await redisHelper.StoreAsync(CollectionName, tokenKey, token, GetTokenLifetime(token));
                 if (!accomplished)
                     throw new IOException("The Redis server returned FALSE to the SET command.");
 
