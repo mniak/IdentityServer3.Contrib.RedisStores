@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EBB4D4F9-AAB5-4F7A-9279-C6DE341A67B5}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer3.Contrib.RedisStores", "src\IdentityServer3.Contrib.RedisStores\IdentityServer3.Contrib.RedisStores.csproj", "{B46E25EB-9EE7-4B84-9BA4-8C78BCCEBB2E}"
 EndProject
 Global

@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net452</TargetFrameworks>
+    <Version>1.1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
